@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Нумерология — совместимость по числу рождения</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #080814;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+.calc-wrap {
+  background: #0d0d1a;
+  border-radius: 20px;
+  padding: 2rem 1.5rem;
+  color: #e8e0d0;
+  border: 0.5px solid #2a2a4a;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 580px;
+}
+.stars-bg { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: 20px; }
+.star { position: absolute; background: #fff; border-radius: 50%; }
+
+.logo-line { text-align: center; font-size: 11px; letter-spacing: 0.18em; color: #c8a84b; text-transform: uppercase; margin-bottom: 6px; }
+.title-main { text-align: center; font-size: 22px; font-weight: 600; color: #f0e6c8; margin-bottom: 4px; }
+.title-sub { text-align: center; font-size: 13px; color: #8880a8; margin-bottom: 1.6rem; }
+.divider-gold { height: 1px; background: linear-gradient(90deg, transparent, #c8a84b55, #c8a84b, #c8a84b55, transparent); margin-bottom: 1.6rem; }
+
+.intro-box { background: #12122a; border: 0.5px solid #2a2a4a; border-radius: 10px; padding: 14px; margin-bottom: 1.5rem; font-size: 13px; color: #9990b8; line-height: 1.6; font-style: italic; }
+
+.section-label { font-size: 11px; letter-spacing: 0.12em; color: #c8a84b; text-transform: uppercase; margin-bottom: 12px; }
+
+.pair-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 1.5rem; }
+.pair-btn { background: #12122a; border: 0.5px solid #2a2a4a; border-radius: 10px; padding: 10px 6px; cursor: pointer; text-align: center; transition: border-color 0.2s, background 0.2s; color: #8880a8; font-size: 12px; font-family: inherit; line-height: 1.4; }
+.pair-btn:hover { border-color: #c8a84b88; color: #e8e0d0; }
+.pair-btn.active { border-color: #c8a84b; background: #1a1830; color: #f0e6c8; }
+.pair-icon { font-size: 18px; display: block; margin-bottom: 4px; }
+
+.mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1.5rem; }
+.mode-btn { background: #12122a; border: 0.5px solid #2a2a4a; border-radius: 10px; padding: 14px 12px; cursor: pointer; text-align: center; transition: border-color 0.2s, background 0.2s; color: #8880a8; font-family: inherit; }
+.mode-btn:hover { border-color: #c8a84b88; color: #e8e0d0; }
+.mode-btn.active { border-color: #c8a84b; background: #1a1830; color: #f0e6c8; }
+.mode-icon { font-size: 20px; display: block; margin-bottom: 6px; }
+.mode-title { font-weight: 600; font-size: 14px; display: block; }
+.mode-desc { font-size: 11px; margin-top: 3px; display: block; color: #665e88; }
+.mode-btn.active .mode-desc { color: #c8a84b88; }
+
+/* Центральный блок ввода — два колодца и стрелка */
+.persons-row {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  gap: 0;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.person-card {
+  background: #12122a;
+  border: 0.5px solid #2a2a4a;
+  border-radius: 14px;
+  padding: 1.2rem 1rem;
+  text-align: center;
+}
+.person-title { font-size: 11px; color: #c8a84b; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px; }
+
+/* Большой барабан выбора числа */
+.day-selector { position: relative; margin: 0 auto; width: 90px; }
+.day-display {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  border: 1.5px solid #c8a84b;
+  background: #0d0d1a;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; font-weight: 600; color: #f0e6c8;
+  cursor: default;
+  user-select: none;
+  margin: 0 auto 10px;
+}
+.day-arrows { display: flex; justify-content: center; gap: 8px; }
+.day-arrow {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: #1a1830;
+  border: 0.5px solid #2a2a4a;
+  color: #c8a84b;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+  font-family: inherit;
+  user-select: none;
+}
+.day-arrow:hover { background: #251f40; border-color: #c8a84b66; }
+.day-arrow:active { background: #2a2248; }
+
+/* Или ввести вручную */
+.day-input-direct {
+  background: transparent;
+  border: none;
+  border-bottom: 0.5px solid #2a2a4a;
+  color: #665e88;
+  font-size: 11px;
+  text-align: center;
+  width: 100%;
+  margin-top: 8px;
+  outline: none;
+  font-family: inherit;
+  padding: 4px 0;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.day-input-direct:hover { color: #8880a8; border-color: #c8a84b44; }
+.day-input-direct:focus { color: #c8a84b; border-color: #c8a84b; }
+
+.num-badge { margin-top: 10px; font-size: 11px; color: #665e88; min-height: 16px; }
+.num-val { color: #c8a84b; font-weight: 600; font-size: 13px; }
+
+/* Соединитель между колодцами */
+.persons-connector {
+  display: flex; align-items: center; justify-content: center;
+  color: #c8a84b; font-size: 20px; opacity: 0.5;
+  padding-top: 10px;
+}
+
+.calc-btn {
+  width: 100%; background: #c8a84b; border: none; border-radius: 12px;
+  padding: 14px; color: #0d0d1a; font-size: 15px; font-weight: 600;
+  cursor: pointer; font-family: inherit; letter-spacing: 0.04em;
+  transition: opacity 0.2s, transform 0.1s; margin-bottom: 1rem;
+}
+.calc-btn:hover { opacity: 0.92; }
+.calc-btn:active { transform: scale(0.99); }
+
+.error-msg { color: #f09595; font-size: 12px; text-align: center; margin-bottom: 8px; display: none; }
+
+/* ---- РЕЗУЛЬТАТ ---- */
+.result-section { display: none; border-top: 1px solid #1e1e38; padding-top: 1.5rem; margin-top: 0.5rem; }
+.result-section.visible { display: block; }
+
+.result-numbers {
+  display: flex; align-items: center; justify-content: center;
+  gap: 1rem; margin-bottom: 1.5rem;
+}
+.rnum-box { text-align: center; }
+.rnum-outer {
+  width: 64px; height: 64px; border-radius: 50%;
+  border: 1.5px solid #c8a84b;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 4px; background: #1a1830;
+}
+.rnum-day { font-size: 11px; color: #665e88; margin-bottom: 2px; }
+.rnum-big { font-size: 28px; font-weight: 600; color: #f0e6c8; line-height: 1; }
+.rnum-reduced { font-size: 11px; color: #c8a84b88; margin-top: 2px; }
+.rnum-label { font-size: 11px; color: #665e88; margin-top: 4px; }
+.rnum-connector { font-size: 22px; color: #c8a84b; opacity: 0.5; }
+
+.compat-label { text-align: center; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #8880a8; margin-bottom: 8px; }
+.compat-bar-wrap { background: #12122a; border-radius: 20px; height: 8px; margin-bottom: 6px; overflow: hidden; }
+.compat-bar-fill { height: 100%; border-radius: 20px; background: #c8a84b; width: 0%; transition: width 1.2s ease; }
+.compat-pct { text-align: center; font-size: 32px; font-weight: 600; color: #c8a84b; margin-bottom: 4px; }
+.compat-verdict { text-align: center; font-size: 14px; color: #e8e0d0; margin-bottom: 1.5rem; }
+
+.result-main { background: #12122a; border: 0.5px solid #2a2a4a; border-radius: 12px; padding: 1.2rem; margin-bottom: 1rem; }
+.result-main-title { font-size: 11px; color: #c8a84b; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+.result-main-text { font-size: 13px; color: #c8c0d8; line-height: 1.7; }
+
+.result-blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.rblock { background: #12122a; border: 0.5px solid #2a2a4a; border-radius: 10px; padding: 12px; }
+.rblock-icon { font-size: 14px; color: #c8a84b; margin-bottom: 6px; }
+.rblock-title { font-size: 12px; font-weight: 600; color: #e8e0d0; margin-bottom: 4px; }
+.rblock-text { font-size: 12px; color: #776e98; line-height: 1.5; }
+
+.premium-divider { height: 1px; background: linear-gradient(90deg, transparent, #c8a84b33, #c8a84b55, #c8a84b33, transparent); margin: 1.2rem 0; }
+.premium-label { text-align: center; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #c8a84b; margin-bottom: 8px; }
+.premium-text { text-align: center; font-size: 13px; color: #8880a8; margin-bottom: 1rem; line-height: 1.5; }
+.premium-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.prem-btn { border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; font-size: 12px; font-family: inherit; transition: opacity 0.2s, transform 0.1s; border: none; display: block; text-decoration: none; }
+.prem-btn:hover { opacity: 0.88; }
+.prem-btn:active { transform: scale(0.97); }
+.prem-btn-tg  { background: #1b3557; color: #85b7eb; }
+.prem-btn-wa  { background: #0f2e22; color: #5dcaa5; }
+.prem-btn-full{ background: #221640; color: #afa9ec; }
+.prem-btn-icon  { font-size: 20px; display: block; margin-bottom: 5px; }
+.prem-btn-title { font-weight: 600; font-size: 12px; display: block; }
+.prem-btn-sub   { font-size: 10px; opacity: 0.75; margin-top: 2px; display: block; }
+
+.reset-link { display: block; text-align: center; margin-top: 1rem; font-size: 12px; color: #665e88; cursor: pointer; text-decoration: none; transition: color 0.2s; }
+.reset-link:hover { color: #8880a8; }
+</style>
+</head>
+<body>
+
+<div class="calc-wrap">
+  <div class="stars-bg" id="starsContainer"></div>
+
+  <div class="logo-line">✦ нумерология ✦</div>
+  <h1 class="title-main">Совместимость по числу рождения</h1>
+  <p class="title-sub">Введите только день рождения каждого партнёра</p>
+  <div class="divider-gold"></div>
+
+  <div class="intro-box">
+    «Число рождения — это день, в который вы пришли в этот мир. Если оно двузначное, цифры складываются до однозначного. Это ваше личное число, отражающее суть характера.»
+  </div>
+
+  <p class="section-label">1. Тип пары</p>
+  <div class="pair-grid">
+    <button class="pair-btn active" data-pair="mf" onclick="selectPair(this)">
+      <span class="pair-icon">♂♀</span>Мужчина + Женщина
+    </button>
+    <button class="pair-btn" data-pair="ff" onclick="selectPair(this)">
+      <span class="pair-icon">♀♀</span>Женщина + Женщина
+    </button>
+    <button class="pair-btn" data-pair="mm" onclick="selectPair(this)">
+      <span class="pair-icon">♂♂</span>Мужчина + Мужчина
+    </button>
+  </div>
+
+  <p class="section-label">2. Цель анализа</p>
+  <div class="mode-grid">
+    <button class="mode-btn active" data-mode="life" onclick="selectMode(this)">
+      <span class="mode-icon">♡</span>
+      <span class="mode-title">Жизнь и любовь</span>
+      <span class="mode-desc">Гармония, чувства, совместный путь</span>
+    </button>
+    <button class="mode-btn" data-mode="biz" onclick="selectMode(this)">
+      <span class="mode-icon">◈</span>
+      <span class="mode-title">Бизнес и партнёрство</span>
+      <span class="mode-desc">Цели, задачи, деловой союз</span>
+    </button>
+  </div>
+
+  <p class="section-label">3. Числа рождения</p>
+  <div class="persons-row">
+
+    <div class="person-card">
+      <p class="person-title" id="label1">Первый партнёр</p>
+      <div class="day-selector">
+        <div class="day-display" id="dayDisplay1">1</div>
+        <div class="day-arrows">
+          <button class="day-arrow" onclick="changeDay(1,-1)">−</button>
+          <button class="day-arrow" onclick="changeDay(1,+1)">+</button>
+        </div>
+        <input class="day-input-direct" type="number" min="1" max="31"
+               placeholder="ввести число" id="dayInput1"
+               oninput="syncFromInput(1)">
+      </div>
+      <div class="num-badge" id="nb1">число: <span class="num-val">1</span></div>
+    </div>
+
+    <div class="persons-connector">✦</div>
+
+    <div class="person-card">
+      <p class="person-title" id="label2">Второй партнёр</p>
+      <div class="day-selector">
+        <div class="day-display" id="dayDisplay2">1</div>
+        <div class="day-arrows">
+          <button class="day-arrow" onclick="changeDay(2,-1)">−</button>
+          <button class="day-arrow" onclick="changeDay(2,+1)">+</button>
+        </div>
+        <input class="day-input-direct" type="number" min="1" max="31"
+               placeholder="ввести число" id="dayInput2"
+               oninput="syncFromInput(2)">
+      </div>
+      <div class="num-badge" id="nb2">число: <span class="num-val">1</span></div>
+    </div>
+
+  </div>
+
+  <div class="error-msg" id="errMsg">Пожалуйста, выберите числа рождения</div>
+  <button class="calc-btn" onclick="calculate()">✦ Рассчитать совместимость</button>
+
+  <!-- РЕЗУЛЬТАТ -->
+  <div class="result-section" id="resultSection">
+
+    <div class="result-numbers">
+      <div class="rnum-box">
+        <div class="rnum-day" id="rDay1"></div>
+        <div class="rnum-outer">
+          <div class="rnum-big" id="rNum1">—</div>
+        </div>
+        <div class="rnum-reduced" id="rReduced1"></div>
+        <div class="rnum-label" id="rLabel1">Партнёр 1</div>
+      </div>
+      <div class="rnum-connector">✦</div>
+      <div class="rnum-box">
+        <div class="rnum-day" id="rDay2"></div>
+        <div class="rnum-outer">
+          <div class="rnum-big" id="rNum2">—</div>
+        </div>
+        <div class="rnum-reduced" id="rReduced2"></div>
+        <div class="rnum-label" id="rLabel2">Партнёр 2</div>
+      </div>
+    </div>
+
+    <div class="compat-label">Совместимость</div>
+    <div class="compat-bar-wrap">
+      <div class="compat-bar-fill" id="compatBar"></div>
+    </div>
+    <div class="compat-pct" id="compatPct">—</div>
+    <div class="compat-verdict" id="compatVerdict"></div>
+
+    <div class="result-main">
+      <div class="result-main-title" id="rmTitle">✦ Характеристика союза</div>
+      <div class="result-main-text" id="rmText"></div>
+    </div>
+
+    <div class="result-blocks">
+      <div class="rblock">
+        <div class="rblock-icon">▲</div>
+        <div class="rblock-title" id="rb1t">Сильные стороны</div>
+        <div class="rblock-text" id="rb1"></div>
+      </div>
+      <div class="rblock">
+        <div class="rblock-icon">◉</div>
+        <div class="rblock-title" id="rb2t">Зоны внимания</div>
+        <div class="rblock-text" id="rb2"></div>
+      </div>
+    </div>
+    <div class="rblock" style="margin-bottom:1rem; background:#12122a; border:0.5px solid #2a2a4a; border-radius:10px; padding:12px;">
+      <div style="font-size:14px;color:#c8a84b;margin-bottom:6px;">✧</div>
+      <div class="rblock-title" id="rb3t">Совет нумеролога</div>
+      <div class="rblock-text" id="rb3"></div>
+    </div>
+
+    <div class="premium-divider"></div>
+    <div class="premium-label">✦ полная расшифровка ✦</div>
+    <p class="premium-text">Хотите узнать больше? Получите персональный разбор от эксперта</p>
+    <div class="premium-grid">
+      <a href="https://t.me/ВАША_ССЫЛКА" class="prem-btn prem-btn-tg" target="_blank">
+        <span class="prem-btn-icon">✈</span>
+        <span class="prem-btn-title">Консультация</span>
+        <span class="prem-btn-sub">Telegram</span>
+      </a>
+      <a href="https://wa.me/ВАША_ССЫЛКА" class="prem-btn prem-btn-wa" target="_blank">
+        <span class="prem-btn-icon">◎</span>
+        <span class="prem-btn-title">Консультация</span>
+        <span class="prem-btn-sub">WhatsApp</span>
+      </a>
+      <a href="https://t.me/ВАША_ССЫЛКА" class="prem-btn prem-btn-full" target="_blank">
+        <span class="prem-btn-icon">❋</span>
+        <span class="prem-btn-title">Расшифровка</span>
+        <span class="prem-btn-sub">текст + аудио</span>
+      </a>
+    </div>
+    <a class="reset-link" onclick="resetCalc()">← Рассчитать другую пару</a>
+  </div>
+</div>
+
+<script>
+/* ── звёзды ── */
+(function(){
+  const sc=document.getElementById('starsContainer');
+  for(let i=0;i<55;i++){
+    const s=document.createElement('div'); s.className='star';
+    const sz=Math.random()*2+0.5;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;opacity:${Math.random()*0.38+0.08}`;
+    sc.appendChild(s);
+  }
+})();
+
+/* ── состояние ── */
+let currentPair='mf', currentMode='life';
+const days=[1,1]; // текущие значения дней
+
+const PAIR_LABELS={
+  mf:['Мужчина','Женщина'],
+  ff:['Первый партнёр','Второй партнёр'],
+  mm:['Первый партнёр','Второй партнёр']
+};
+
+function selectPair(btn){
+  document.querySelectorAll('.pair-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); currentPair=btn.dataset.pair;
+  const lb=PAIR_LABELS[currentPair];
+  document.getElementById('label1').textContent=lb[0];
+  document.getElementById('label2').textContent=lb[1];
+  document.getElementById('rLabel1').textContent=lb[0];
+  document.getElementById('rLabel2').textContent=lb[1];
+}
+function selectMode(btn){
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); currentMode=btn.dataset.mode;
+}
+
+/* ── редукция числа рождения ──
+   1–9  → оставить как есть
+   10–31 → сложить цифры, пока не получится 1–9  */
+function reduceDay(d){
+  if(d<=9) return d;
+  let n=d;
+  while(n>9){ n=String(n).split('').reduce((a,c)=>a+parseInt(c),0); }
+  return n;
+}
+
+/* ── барабан ── */
+function renderDay(p){
+  const d=days[p-1];
+  document.getElementById('dayDisplay'+p).textContent=d;
+  const r=reduceDay(d);
+  const badge=document.getElementById('nb'+p);
+  if(d===r){
+    badge.innerHTML='число: <span class="num-val">'+r+'</span>';
+  } else {
+    badge.innerHTML='число: '+d+' → <span class="num-val">'+r+'</span>';
+  }
+}
+function changeDay(p,delta){
+  days[p-1]=Math.min(31,Math.max(1,days[p-1]+delta));
+  document.getElementById('dayInput'+p).value='';
+  renderDay(p);
+}
+function syncFromInput(p){
+  const v=parseInt(document.getElementById('dayInput'+p).value);
+  if(v>=1&&v<=31){ days[p-1]=v; renderDay(p); }
+}
+
+/* Инициализация */
+renderDay(1); renderDay(2);
+
+/* ── База расшифровок ── (та же, что в первом калькуляторе) */
+const LIFE_DATA={
+"1w-1m":{pct:62,verdict:"Союз двух сильных — требует мудрости",text:"Это непростое сочетание: каждая единица считает себя главной и не желает подстраиваться. Женщине желательно проявить гибкость. Такой мужчина знает себе цену, но у него достаточно энергии, чтобы выполнять свои обязанности и любить.",strength:"Обе личности сильны, и вместе они могут сверкать на людях. При правильном распределении пространства — каждый со своим хобби — союз становится гармоничным.",attention:"Главное не спорить и уважать мнение партнёра. Конфликт двух лидеров без компромисса разрушает отношения.",advice:"Две сильные личности должны поддерживать друг друга и находить компромиссы в спокойной обстановке. Очень важно, чтобы у каждого было личное пространство."},
+"1w-2m":{pct:74,verdict:"Единица ведёт — двойка поддерживает",text:"Такое сочетание предполагает, что женщина берёт бразды правления в свои руки. Единица знает, чего хочет, а двойка сомневается — слишком чувствительна и эмоциональна.",strength:"В таком союзе у единицы нет соперника. Мужчина всегда готов поддержать свою даму и помочь добиться успеха.",attention:"Мужчина должен получать похвалу и возможность гордиться своей семьёй и женщиной. Без этого он угасает.",advice:"Цените его поддержку вслух. Давайте ему возможность чувствовать себя нужным и важным в вашей жизни."},
+"1w-3m":{pct:78,verdict:"Хорошее сочетание двух лидеров",text:"Хорошее сочетание, если первый партнёр сможет по достоинству оценить привлекательные качества второго. Важно равновесие без доминирования — тройка тоже лидер.",strength:"Оба хотят большой дружной семьи, социальной реализации и расширения благосостояния. Этот партнёр — прекрасный человек рядом.",attention:"Желательно объединить сильные стороны на достижение общих целей, а не соперничать.",advice:"Помните: тройка тоже лидер. Объединяйте энергии для достижения схожих целей — это ваша сила."},
+"1w-4m":{pct:70,verdict:"Стабильность встречает инициативу",text:"Четвёрка ценит основательность, расписание и экономический базис. Единица же всегда полна новых планов. И тем не менее они могут прекрасно ладить.",strength:"Четвёрка привлекательна и сексуальна. Обе цифры понимают, что такое верность и порядочность. Четвёрка просчитает все риски.",attention:"Конфликт между импульсивностью единицы и консерватизмом четвёрки нужно решать через диалог.",advice:"Четвёрка разрушает преграды почти магическим способом. Доверьтесь её методичности в важных делах."},
+"1w-5m":{pct:48,verdict:"Сложное сочетание — разные ценности",text:"Единица считает себя королём или королевой, а пятёрка, по её мнению, не дотягивает до нужного уровня. Увлечённость умом и широким кругозором пятёрки может быть, но ненадолго.",strength:"Есть интеллектуальное притяжение и интерес к общению на старте отношений.",attention:"Рано или поздно единица осознаёт, что ей нужен другой человек, который может дать ей гораздо больше.",advice:"Честно ответьте себе: есть ли здесь долгосрочная перспектива? Лучше это сделать до глубокой эмоциональной вовлечённости."},
+"1w-6m":{pct:65,verdict:"Яркий роман, сложный быт",text:"На первый взгляд, отличная пара: оба хотят удовольствий и блеска, комфорта и развлечений. Но после бурного романа единица может почувствовать, что ей самой надо прокладывать дорогу.",strength:"Общая любовь к красоте, путешествиям и ярким впечатлениям создаёт прекрасное начало.",attention:"Если обнаружится, что один берёт на себя все решения и материальную ответственность — это сигнал к честному разговору.",advice:"Союз сохранится, если чётко разграничить роли. Если вас устраивает быть ведущим — этот вариант возможен."},
+"1w-7m":{pct:60,verdict:"Мистическое притяжение без почвы",text:"Мистическим образом эти цифры притягиваются. Семёрки часто гоняются за единицами, всеми силами их околдовывают. Если это творческий союз — он благоприятен, но для семейной жизни семёрке не хватает практицизма.",strength:"Сильное взаимное притяжение, общий интерес к творчеству и духовным темам.",attention:"Единица ценит материальное благополучие больше, чем таланты. Это может стать источником разочарования.",advice:"Оцените реалистично: способен ли партнёр обеспечить тот уровень жизни, который вам важен?"},
+"1w-8m":{pct:58,verdict:"Деловые партнёры — не романтическая пара",text:"Восьмёрка — великолепный деловой партнёр для единицы. Но в личной жизни возможны проблемы: восьмёрки хотят подчинения и строгой дисциплины, а единица сама знает, что ей нужно.",strength:"В бизнесе и совместных проектах эта пара может достичь многого.",attention:"Стиль жизни единицы и прижимистость восьмёрки могут войти в конфликт.",advice:"Разграничьте деловое и личное. Если вы партнёры в жизни — договоритесь о базовых ценностях на берегу."},
+"1w-9m":{pct:76,verdict:"Частый союз с сильной энергией",text:"Очень частый союз: девятка по кругу догоняет единицу. Девятки умеют пылко влюбляться, красиво ухаживать и завоевать сердце единицы. В быту девятка способна взять на себя часть обязательств.",strength:"Романтика, галантность и забота — всё на высоте. В интиме девятки умеют удивлять.",attention:"Единице необходимо всеми силами сохранять чувство достоинства партнёра.",advice:"Давайте ему возможность чувствовать себя значимым и уважаемым — это залог долгих и тёплых отношений."},
+"2w-1m":{pct:88,verdict:"Идеальное дополнение",text:"Идеальная ситуация, создающая благоприятную почву для здоровых отношений. Заботливая двойка прекрасно дополняет мужественную единицу. Он берёт ответственность за семью.",strength:"Органичное распределение ролей: он — опора, она — тепло и забота. Союз устойчив и гармоничен.",attention:"Двойке важно не флиртовать с другими — единица воспринимает это очень болезненно.",advice:"Будьте благодарны и находите добрые слова для своего партнёра. Это то, что держит этот союз крепким."},
+"2w-2m":{pct:72,verdict:"Два похожих человека — важно найти лидера",text:"Очень похожие люди. Оба тонко чувствуют и любят душевные беседы. Но часто в такой ситуации кто-то один лидирует и ищет более сильного партнёра.",strength:"Высокая эмпатия друг к другу, понимание с полуслова. Хороший союз для совместной жизни.",attention:"Кому-то нужно взять на себя роль ведущего — иначе оба будут ждать решений и буксовать.",advice:"Если оба уважительны и внимательны друг к другу — это хороший и тёплый союз на долгие годы."},
+"2w-3m":{pct:75,verdict:"Он обеспечивает — она остаётся собой",text:"Тройка хочет от партнёра послушания, уважения и беззаветной любви. Способна обеспечить всё необходимое для достойной жизни. С ней партнёр чувствует себя защищённым.",strength:"Тройка умеет отдыхать красиво и разнообразно. Двойка чувствует защиту и стабильность.",attention:"Тройка не простит измены и недостойного поведения. Двойке необходимо оставаться женственной и следить за собой.",advice:"Доказывайте каждый день, что вы лучший. Это язык любви для тройки."},
+"2w-4m":{pct:70,verdict:"Стабильность есть, но нужен диалог",text:"Четвёрка стабильная и практичная, обладает большим потенциалом. Умная, сексуальная, но очень прямолинейная. Утончённая двойка может начать страдать и замкнуться в себе.",strength:"Четвёрка щедрая — в материальном плане обеспечит хорошую жизнь.",attention:"Прямолинейность четвёрки может ранить чувствительную двойку. Необходимы разговоры.",advice:"Двойка должна чётко говорить о своих желаниях и предпочтениях. Четвёрка услышит — если объяснить прямо."},
+"2w-5m":{pct:58,verdict:"Лёгкое начало, возможен уход",text:"Эти два числа во многом похожи: любят общение, путешествия, обладают разносторонними талантами. Они легко сходятся, но рано или поздно могут разбежаться.",strength:"Общие интересы, лёгкость общения, схожий темп жизни в начале отношений.",attention:"Пятёрка может казаться холодной и слишком занятой своим развитием. Двойка может найти другого, более заинтересованного.",advice:"Честно оцените: есть ли у партнёра реальный интерес к вам, или вы просто удобное окружение?"},
+"2w-6m":{pct:80,verdict:"Благоприятный союз с теплом",text:"Достаточно благоприятное сочетание. Шестёрка знает толк в удовольствиях, весела и ценит красоту. Двойка не будет скучать с таким партнёром.",strength:"Шестёрка везунчик по жизни и умеет создать красивую жизнь. Двойке будет интересно и комфортно.",attention:"За шестёркой надо следить — это дамский угодник или ловелас. Ревность возможна.",advice:"Следите за отношениями, но не удушайте контролем. Доверие — основа этого союза."},
+"2w-7m":{pct:64,verdict:"Сильное чувство, нестабильные эмоции",text:"Семёрка знает, как очаровать и найти подход. Особенно ей нравятся двойки. Но со временем может обидеть своей холодностью.",strength:"Любовь может быть очень сильной. Высокий уровень взаимного интереса и притяжения.",attention:"Особенность семёрки — нестабильное эмоциональное состояние. То фонтанирует, то уходит в себя. С этим придётся мириться.",advice:"Дайте ей пространство для уединения — это её природа. Не требуйте постоянного присутствия."},
+"2w-8m":{pct:82,verdict:"Он надёжен — она вдохновляет",text:"Восьмёрка старательная и практичная. Двойка помогает ей реализоваться, даёт уверенность и создаёт уют. Восьмёрка может стать идеальным партнёром для двойки.",strength:"Восьмёрка верная и надёжная, умеет работать и зарабатывать. Карьерный рост важен для неё — и это обеспечивает стабильность.",attention:"Восьмёрка эмоционально может быть сдержана. Двойке важно это принять и не воспринимать как холодность.",advice:"Ценитьте её надёжность. Эмоциональная сдержанность — не равнодушие, а способ любить."},
+"2w-9m":{pct:90,verdict:"Идеальный союз для двойки",text:"Идеальный союз для двойки. Девятка берёт на себя ответственность за благополучие семьи, умеет добиваться успеха. Достаточно романтична, делает красивые подарки и сюрпризы.",strength:"Умеет развеселить и порадовать. Это то, что нужно двойке — забота, романтика и надёжность.",attention:"Важно ценить усилия партнёра и не воспринимать заботу как должное.",advice:"Выражайте благодарность и восхищение — это питает девятку и делает союз ещё более счастливым."},
+"3w-1m":{pct:73,verdict:"Взлёты и падения, но надолго",text:"Хорошее сочетание. Единица не любит стрессов, предпочитает спокойную жизнь. Тройка может быть вспыльчивой и слишком эмоциональной. Эти отношения полны взлётов и падений, но могут длиться долго.",strength:"Оба ценят семью, настроены на духовный рост и многодетность. Общий вектор на большую жизнь.",attention:"Тройке необходимо контролировать вспыльчивость — единица этого не переносит.",advice:"Выбирайте момент для серьёзных разговоров. Спокойная обстановка — ваш лучший союзник."},
+"3w-2m":{pct:50,verdict:"Разные темпы — сложно вместе",text:"Двойке нужна спокойная и размеренная жизнь, тройка же любит веселье и светскую жизнь. Такие отношения имеют мало шансов на успех.",strength:"Двойка умеет выслушать, поддержать и быть сердечной. Если ищете ведомого — это вариант.",attention:"Если один ищет сильного лидера — разочарование неизбежно. Энергетические уровни не совпадают.",advice:"Честно ответьте себе: вы готовы быть единственным двигателем в этом союзе? Если да — возможно."},
+"3w-3m":{pct:70,verdict:"Много общего, но нужна роль лидера",text:"Много общего: совпадают интересы, темперамент. Но кто-то лидирует, а кому-то хочется самоутвердиться на стороне.",strength:"Общие интересы и темперамент создают лёгкость общения и взаимопонимание.",attention:"Ведущему в паре необходимо контролировать своё настроение и давать партнёру пространство для самовыражения.",advice:"Дайте партнёру роль и признание внутри союза — тогда ему не понадобится искать это на стороне."},
+"3w-4m":{pct:72,verdict:"Оба нацелены на расширение",text:"Такая пара настроена на расширение: благополучие, дети, образование — важная часть жизни для обоих. Четвёрка уравновешена, организована и дополняет тройку.",strength:"Тройка сделает жизнь четвёрки более разнообразной и яркой. Четвёрка обеспечивает стабильность и почву.",attention:"Споры и разногласия возможны — разные подходы к жизни иногда сталкиваются.",advice:"Цените то, чем дополняете друг друга: его системность + ваша живость = прекрасный баланс."},
+"3w-5m":{pct:60,verdict:"Осознанный выбор с ревностью",text:"Если два таких человека живут вместе долго — это осознанный выбор. Тройка волнуется и заботится о пятёрке, считая её во многом несостоятельной.",strength:"Любовь возможна на основе общих интересов — их может быть немало.",attention:"Тройка часто ревнует пятёрку, считая её легкомысленной. Это главная проблема союза.",advice:"Работайте над доверием. Ревность без оснований разрушает даже крепкие чувства."},
+"3w-6m":{pct:90,verdict:"Великолепный союз",text:"Великолепный союз. Шестёрка хорошо понимает тройку. Они ладят между собой, могут отлично сотрудничать, идти к общим целям и помогать друг другу в достижениях.",strength:"Оба любят уют и развлечения, каждый принимает причуды партнёра. Союз помогает обоим полнее раскрыть личные качества.",attention:"Берегите эту гармонию — не принимайте её как данность.",advice:"Этот союз — подарок. Инвестируйте в него время и внимание, и он будет только расцветать."},
+"3w-7m":{pct:55,verdict:"Один сильнее — нужно принятие",text:"В таком союзе тройка заметно превосходит семёрку по практичности. Если семёрка творческая и реализованная — это даёт шанс отношениям.",strength:"В деловых отношениях — благоприятный альянс. Творческое партнёрство может быть сильным.",attention:"В личной жизни тройке придётся мириться с тем, что она нередко будет брать на себя больше.",advice:"Если готовы принять партнёра таким, какой он есть — союз возможен. Попытки изменить его ни к чему не приведут."},
+"3w-8m":{pct:78,verdict:"Опора и стратегия",text:"Восьмёрка всегда поможет тройке добиться цели, обеспечив надёжную опору и стабильную основу жизни. Два очень сильных человека вместе.",strength:"Семья может стать примерно показательной. Стабильность, уважение, совместные достижения.",attention:"Если тройка любит стихийность и перемены — размеренность восьмёрки может угнетать.",advice:"Оцените: готовы ли вы к жизни по чёткому расписанию? Если да — это отличный союз."},
+"3w-9m":{pct:68,verdict:"Один ведёт — другой исполняет",text:"Один из партнёров — лидер в этих отношениях. Это могут быть отношения, наполненные душевным теплом и любовью, а могут быть обречены на разрушение.",strength:"Если тройка ведущая — девятка один из лучших исполнителей: бесстрашный, быстрый, надёжный.",attention:"Очень важно дать возможность ведомому партнёру проявить его лучшие качества. Иначе он угаснет.",advice:"Ведите мудро: давайте партнёру задачи, в которых он может блеснуть. Его самооценка — ваша ответственность."},
+"4w-1m":{pct:70,verdict:"Идеально для творчества — сложно в быту",text:"Для творчества и достижения общей цели — идеальный союз. 4 — стабильность и безопасность. 1 — инициатива, смелость и ответственность. В личных отношениях стабильность не гарантирована.",strength:"Если это союз двух творческих людей — он может быть блестящим.",attention:"Если четвёрка захочет доминировать — единица уйдёт. Здесь единица — лидер.",advice:"Принимайте лидерство единицы в стратегических вопросах. Ваша сила — в реализации."},
+"4w-2m":{pct:68,verdict:"Лидирует один — важна честность",text:"В этих отношениях лидером должна стать четвёрка. Стабильность и безопасность — основа отношений. Четвёрка может сильно влюбиться в двойку.",strength:"Двойка способна быть честной и внимательной, если четвёрка создаёт правильную атмосферу.",attention:"Четвёрка не терпит вранья. Любые потрясения могут разрушить этот союз.",advice:"Договоритесь о полной прозрачности с первого дня. Это основа вашего союза."},
+"4w-3m":{pct:74,verdict:"Стабильные отношения с огнём",text:"Стабильные отношения, где проявятся все лучшие качества. Четвёрка ценит стабильность и безопасность. Тройка ценит семью и готова многое делать для благополучия домочадцев.",strength:"Взаимное уважение, забота о семье, совместные цели.",attention:"Сексуальная совместимость и постоянный огонёк в отношениях не должны потухнуть. Иначе возможен адюльтер.",advice:"Поддерживайте страсть осознанно. Стабильность не должна превращаться в рутину."},
+"4w-4m":{pct:80,verdict:"Союз двух похожих — удвоенная сила",text:"Оба партнёра могут обрести счастье в этом союзе. Они похожи, и если совпадают цели и желания, то реализация возможна с удвоенной силой.",strength:"Оба обладают магической возможностью привлекать удачу. Между ними всегда будет уважение. Привязанность усилится с годами.",attention:"Важно совпадение целей — без этого схожесть характеров не спасает.",advice:"Обсуждайте большие жизненные планы на старте. Общий вектор — ваша самая крепкая связь."},
+"4w-5m":{pct:60,verdict:"Один ищет семью — другой ищет свободу",text:"Четвёрка ищет крепкой связи для создания семьи. Такой партнёр-пятёрка не всегда оправдывает этот запрос. Если союз творческий и люди объединены общими целями — может стать крепким.",strength:"В сексуальных отношениях всё в порядке. Четвёрка ценит храбрость и уверенность.",attention:"Непредсказуемость пятёрки дестабилизирует четвёрку. Это главный риск союза.",advice:"Найдите общее дело. Без общей цели вас будет разносить в разные стороны."},
+"4w-6m":{pct:86,verdict:"Очень благоприятное сочетание",text:"Это сочетание считается очень благоприятным. Здесь всё хорошо организовано, обязанности чётко определены. Ценности совпадают. Любят дом, с нежностью относятся друг к другу.",strength:"В этом союзе каждый может реализовать свои способности, творческий потенциал и лучшие личные качества.",attention:"Препятствием может стать только чьё-то желание пойти на сторону. Берегите доверие.",advice:"Этот союз благословлён. Инвестируйте в близость и не пренебрегайте романтикой в быту."},
+"4w-7m":{pct:84,verdict:"Одно из лучших сочетаний",text:"Одно из лучших нумерологических сочетаний. Этот союз может стать супер-стабильным. Семёрка не особо приспособлена к быту, но возможно одарена красотой и талантами.",strength:"Четвёрка организует жизнь так, чтобы семёрка смогла реализоваться максимально. Семёрка вдохновляет на реализацию талантов. Сексуальность высокая.",attention:"Бытовую нагрузку придётся взять на себя четвёрке — это нужно принять.",advice:"Цените творческий вклад семёрки в вашу жизнь. Её вдохновение — это тоже вклад в союз."},
+"4w-8m":{pct:85,verdict:"Великолепное сочетание",text:"Великолепное сочетание. Оба ценят стабильность в отношениях, настроены на карьерный рост и материальное благополучие.",strength:"Планирование и рациональный подход к жизни объединяет. Семья строится на прочном фундаменте.",attention:"Необходимо не откладывать рождение детей, иначе союз может стать скучным. Слишком глубокий уход в работу разъединяет.",advice:"Выделяйте время для близости вне работы и планов. Отношения нуждаются в воздухе."},
+"4w-9m":{pct:66,verdict:"Романтика есть — нужна гибкость",text:"Четвёрке нужно взять управление на себя, но не забывать ценить романтизм и галантность девятки. Сексуальные отношения превосходят все ожидания.",strength:"Романтизм и галантность девятки делают жизнь красивой. Сексуальная совместимость высокая.",attention:"Девятка может захотеть разорвать «оковы» и сбежать. Всё решает гибкость ведущего партнёра.",advice:"Давайте девятке свободу внутри ваших отношений. Контроль её пугает — доверие удерживает."},
+"5w-1m":{pct:52,verdict:"Только романтика — без продолжения",text:"Пятёрка очень привлекает единицу. Ему нравится красота, лёгкость, творческий потенциал. Но единице очень трудно найти себя в этих отношениях, реализоваться как лидеру.",strength:"Сильное взаимное притяжение и искра на старте отношений.",attention:"Единица не готова потерять возможность продемонстрировать свои лучшие качества. Ей здесь тесно.",advice:"Если хотите продолжения — дайте единице пространство для лидерства. Иначе это лишь романтическое приключение."},
+"5w-2m":{pct:54,verdict:"Одна лидирует, другой ведомый",text:"Двойка послушная и понятливая. Пятёрка играет роль лидера. Было бы великолепно, если бы они сотрудничали, позволяя друг другу самореализовываться.",strength:"Деловые отношения имеют большие шансы на успех. Двойка гибкая и понимающая.",attention:"Бесславный конец возможен, если пятёрка перегибает палку. Как любовники они подходят друг другу куда меньше.",advice:"Сохраняйте уважение к партнёру. Без него лидерство превращается в диктатуру."},
+"5w-3m":{pct:80,verdict:"Высокий потенциал союза",text:"Тройка может быть сильно влюблена в такого партнёра. Качества характера тройки позволяют оставаться гибкой и приспосабливаться к любым неожиданностям. Пятёрка в восторге.",strength:"Сексуальная сторона таких отношений великолепна. Высокая возможность сотрудничества и создания семьи.",attention:"Терпению тройки может прийти конец. Не злоупотребляйте её гибкостью.",advice:"Цените терпение и восхищение партнёра. Давайте ему взаимность — он заслуживает большего."},
+"5w-4m":{pct:58,verdict:"Один хочет её — другой дестабилизирует",text:"У четвёрки огромное желание завладеть партнёром-пятёркой. Непредсказуемый характер пятёрки и её свободолюбие дестабилизируют четвёрку.",strength:"Сильное притяжение и интерес с её стороны. Она будет стараться.",attention:"Пятёрке, чтобы сохранить такого партнёра, необходимо отнестись к нему с большим пониманием.",advice:"Если хотите удержать — дайте хотя бы минимальную предсказуемость и стабильность."},
+"5w-6m":{pct:76,verdict:"Партнёры устраивают друг друга",text:"Партнёры устраивают друг друга. Шестёрка знает, как постоять за себя, проявить инициативу и обладает даром предвидения. Это удивляет и восхищает пятёрку.",strength:"Пятёрка в шестёрке уверена и ей с ней нескучно. Шестёрка испытывает благодарность за то, что пятёрка делает для неё.",attention:"Оба своенравны — важно не тянуть одеяло.",advice:"Этот союз работает, когда оба дают, а не только берут. Взаимность — ваш главный ресурс."},
+"5w-7m":{pct:50,verdict:"Приливы и отливы — без берегов",text:"Эти отношения — приливы и отливы. Возможен романтический гостевой брак. Эпизодические встречи с духовными или творческими интересами.",strength:"Творческая и духовная связь может быть сильной и вдохновляющей.",attention:"Строить планы на долгую совместную жизнь не стоит, надеяться на помощь тоже.",advice:"Наслаждайтесь моментами вместе, но не стройте иллюзий о совместном быте."},
+"5w-8m":{pct:82,verdict:"Надёжный партнёр для пятёрки",text:"Восьмёрка — находка для пятёрки. Она способна всё держать под контролем и заставить работать любой проект. Вместе с ней любая мечта станет реальностью.",strength:"Интуиция и аналитический ум пятёрки плюс работоспособность и организованность восьмёрки — отличное сочетание.",attention:"Если только это не наскучит пятёрке. Контролирующий характер восьмёрки требует принятия.",advice:"Дайте восьмёрке управлять процессами — и наслаждайтесь результатами. Это её способ любить."},
+"5w-9m":{pct:62,verdict:"Интерес есть — быт разлучает",text:"Они интересны друг другу и прекрасно совместимы в сексе. Но большинство надежд разрушается: романтический период заканчивается и начинается быт.",strength:"Взаимный интерес и сексуальная совместимость на старте очень высоки.",attention:"В быту всплывут разногласия. Именно здесь и проверяется этот союз.",advice:"Договоритесь о быте заранее. Многих кризисов можно избежать, если обсудить ожидания честно."},
+"6w-1m":{pct:74,verdict:"Хорошо сбалансированный союз",text:"Хорошо сбалансированные отношения. Романтические и амбициозные. Совместные поездки и праздники — это запоминающиеся вехи их жизни.",strength:"Общая любовь к жизни во всех её проявлениях. Яркая совместная жизнь.",attention:"Шестёрке желательно оставаться независимой и не просить от единицы слишком много. Единицы не любят капризов.",advice:"Оставайтесь тактичными и разумными в запросах — тогда психологическое равновесие будет сохранено."},
+"6w-2m":{pct:65,verdict:"Один ведёт — другой поддерживает",text:"В этих отношениях лидирует шестёрка. Двойка поддержит её в любых начинаниях, придаст силы и уверенности. Но партнёр может оказаться слишком скучным.",strength:"Двойка поддержит в любых начинаниях и придаст уверенности.",attention:"Тут всё зависит от возможностей двойки — как материальных, так и интеллектуальных.",advice:"Узнайте человека до глубокой влюблённости. Оценивайте не только внешность, но и глубину."},
+"6w-3m":{pct:72,verdict:"Сотрудничество приносит удачу",text:"Удача будет им сопутствовать, если они будут сотрудничать. Тройка не позволит шестёрке указывать, как правильно жить. Если позволить ей лидировать в обустройстве быта — оправдает ожидания.",strength:"Удача будет сопутствовать, если они будут сотрудничать.",attention:"Трения разрушат отношения. Уступки здесь — не слабость, а инвестиция.",advice:"Договоритесь о сферах ответственности заранее. Кто за что отвечает — это снимает большинство конфликтов."},
+"6w-4m":{pct:70,verdict:"Красота и цели — но осторожно с мыслями",text:"Красота, творчество и общие цели объединяют эту пару. Тут может быть много любви и секса. Но слишком раскованная шестёрка может опечалить стабильную четвёрку.",strength:"Сильное притяжение, общие ценности, тепло и страсть.",attention:"Оба много «читают» на подсознательном уровне. Прозрачность в намерениях критически важна.",advice:"Будьте прозрачны в своих намерениях. Четвёрка чувствует фальшь — честность здесь дороже всего."},
+"6w-5m":{pct:55,verdict:"Оба берут — некому давать",text:"Оба слишком своенравны и настроены на то, чтобы получать. Они смогут многому научить друг друга, но пятёрка убежит первая.",strength:"Взаимное обучение и расширение горизонтов — краткосрочная ценность союза.",attention:"Кто-то должен быть готов вкладывать больше. Иначе партнёрство рассыплется.",advice:"Спросите себя: кто в этом союзе готов отдавать? Если ответа нет — союз не выживет."},
+"6w-6m":{pct:84,verdict:"Прекрасное взаимопонимание",text:"Прекрасное понимание. Нет разочарования и угнетения. Каждый дополняет личные качества другого. Если возникнут разногласия — кому-то придётся уступить.",strength:"Деловые отношения имеют огромный шанс на успех. Взаимное принятие и дополнение.",attention:"Кому-то придётся быть более гибким в конфликтах.",advice:"Берегите эту редкую гармонию. Уступчивость здесь — сила, а не слабость."},
+"6w-7m":{pct:42,verdict:"Сложное сочетание — осторожно",text:"Семёрки склонны использовать шестёрок для реализации своих собственных желаний и целей. Шестёрка всегда служит только для удовлетворения амбиций семёрки.",strength:"Прекрасный секс. Общие планы по духовному развитию могут объединить.",attention:"В долгосрочной перспективе шестёрка рискует потерять себя в этих отношениях.",advice:"Будьте честны с собой: вы в этих отношениях — партнёр или ресурс? Ответ важен."},
+"6w-8m":{pct:80,verdict:"Огромные шансы на успех",text:"Если шестёрка решит принять такого партнёра — сможет реализовать все свои желания. Огромные шансы на успех, если это деловые отношения. Всё будет стабильным.",strength:"Люди создадут почву для постоянного развития и совершенствования.",attention:"Шестёрке необходимо помнить, что все виды расслабления и отдыха — это её прерогатива. Восьмёрка не умеет отдыхать.",advice:"Возьмите на себя организацию досуга. Это ваш вклад в союз — и он очень ценится."},
+"6w-9m":{pct:88,verdict:"Очень частое и почти идеальное сочетание",text:"Очень частое сочетание. Они сходятся удивительным и иногда невероятным образом. Шестёрка просто околдована романтизмом и напором девятки.",strength:"Романтизм, страсть, взаимное восхищение. Оба вдохновляют друг друга.",attention:"Шестёрке непременно необходимо помнить, что партнёра нужно слышать и вдохновлять постоянно.",advice:"Не принимайте романтизм партнёра как должное. Отвечайте вниманием и восхищением — это питает союз."},
+"7w-1m":{pct:60,verdict:"Притяжение есть — понимания мало",text:"Часто семёрку притягивают единицы: красивы, талантливы и харизматичны. Но непонимание лидерских качеств единицы и желание быть самым важным могут заставить её уйти в себя.",strength:"Сильное взаимное притяжение и восхищение на старте.",attention:"Семёрке необходимо быть понимающей. Лидерство единицы — не угроза, а природа.",advice:"Примите харизму партнёра как достоинство, а не конкуренцию. Тогда у союза есть шанс."},
+"7w-2m":{pct:48,verdict:"Красота притягивает — счастья нет",text:"Двойка будет влюблена и очарована красотой семёрки. Будет бегать за ней до потери сознания. Семёрка может дать ей шанс и затем разочароваться.",strength:"У них могут родиться очень красивые дети.",attention:"Счастливы партнёры не будут. Семёрка ждёт поддержки и силы, а двойка страдает от её холодности и закрытости.",advice:"Честно оцените: готовы ли вы открыться? Без этого союз обречён на взаимное разочарование."},
+"7w-3m":{pct:82,verdict:"Понимание и страсть — сильный союз",text:"Эти отношения строятся на понимании и общих интересах. Они могут ощутить друг друга всем телом. Отношения могут длиться много лет.",strength:"Все желания и амбиции реализуются. Глубокое взаимопонимание и страсть.",attention:"Важно сохранять это взаимопонимание в обычные дни, не только в яркие моменты.",advice:"Вкладывайте в общее: проекты, путешествия, развитие. Это цемент вашего союза."},
+"7w-4m":{pct:74,verdict:"Успех в бизнесе — нужно принятие в семье",text:"Семёрка никогда не будет просто домохозяйкой, а четвёрка желает спокойствия и размеренности. Если это совместный бизнес — успех гарантирован.",strength:"В совместном деле этот союз великолепен.",attention:"В семейных отношениях семёрке необходимо чувствовать полное принятие её оригинальности и неповторимости.",advice:"Если четвёрка примет её уникальность — отношения могут быть длительными. Это ключевое условие."},
+"7w-5m":{pct:65,verdict:"Оба свободны — лучше гостевой брак",text:"Свобода тут важна обоим. Идеальным будет гостевой брак. Любой союз, основанный на творчестве, успешен.",strength:"Совместные духовные практики тоже позитивны. Взаимопонимание на уровне ценностей.",attention:"Традиционный формат отношений может удушить обоих.",advice:"Договоритесь о формате честно. Нестандартный союз лучше, чем несчастный стандартный."},
+"7w-6m":{pct:86,verdict:"Идеальный партнёр для семёрки",text:"Шестёрка может стать идеальным партнёром. Он готов на многое ради неё. Ей нравится, что он может быть инициативным. Она не скучает и не чувствует жизнь бессмысленной.",strength:"Материальные проблемы он берёт на себя. Семёрка очень сильно может привязаться к такому партнёру.",attention:"Берегите эту привязанность — такие партнёры редки.",advice:"Отвечайте ему теплом и принятием. Он даёт много — заслуживает видеть вашу благодарность."},
+"7w-7m":{pct:78,verdict:"Две творческие личности на одной волне",text:"Две творческие и неординарные личности. Они на одной волне. Высок уровень эмоционального взаимодействия. Большую часть времени они предаются любви.",strength:"Глубокое взаимопонимание и общий творческий мир.",attention:"Каждому необходимо время и место для собственных реализаций. Без этого — взаимное поглощение.",advice:"Желательно, чтобы у каждого была личная комната — или рассмотрите гостевой формат союза."},
+"7w-8m":{pct:80,verdict:"Хорош во всех отношениях",text:"Этот союз хорош во всех отношениях. Они способны понять и приспособиться друг к другу. Восьмёрка даёт стабильность и покой, который так необходим семёрке.",strength:"Семёрка даёт возможность познать мир в новых красках и усиливает творческий потенциал партнёра.",attention:"Непредсказуемость семёрки может беспокоить восьмёрку. Важно понять особенности друг друга.",advice:"Вложите время в понимание друг друга — и это будет успех для обоих."},
+"7w-9m":{pct:76,verdict:"Девятка влюблена без памяти — но есть риск",text:"Девятка влюбляется в семёрку до беспамятства. Семёрка для него — нимфа, идеал красоты и грации. Он готов бросить всё к её ногам.",strength:"Секс и романтика на высоте. Мощная страсть и восхищение.",attention:"Как только девятка заподозрит меркантильные планы в отношении неё — отношения разорвутся.",advice:"Будьте искренны в своих чувствах. Любая корысть — и этот союз рассыплется мгновенно."},
+"8w-1m":{pct:65,verdict:"Деловой потенциал — личная нестабильность",text:"Поначалу привлекаются очень сильно. Деловые отношения могут продлиться долго. Но восьмёрке важна стабильность и чёткий расчёт на долгие годы.",strength:"Сильное начальное притяжение. В деловых отношениях — долгосрочный потенциал.",attention:"Единица может быть настроена на творчество, а не на стабильность. Тогда восьмёрка откажется от союза.",advice:"Оцените отношение партнёра к материальной стабильности до серьёзных вложений в отношения."},
+"8w-2m":{pct:55,verdict:"Восьмёрка лидирует во всём",text:"Если восьмёрке нужен послушный и преданный партнёр — это прекрасный союз. В отношении секса и развития восьмёрка лидирует.",strength:"Двойка будет предана и управляема. Максимальная лояльность.",attention:"Двойку важно не обидеть. Её мотивация зависит от признания.",advice:"Если готовы к этой роли — союз возможен. Но честно оцените, это ли вам нужно."},
+"8w-3m":{pct:76,verdict:"Два сильных человека — уважение и стратегия",text:"Два очень сильных и организованных человека. Обычно они находят общий язык. У них получается союз, где есть уважение и стратегия.",strength:"Объединяя усилия, они добиваются примерной семьи, стабильных отношений. Дети растут в правильном воспитании, быт организован.",attention:"Оба сильные — важно не доминировать, а сотрудничать.",advice:"Ваша сила — в союзе, а не в противостоянии. Договоритесь о распределении власти."},
+"8w-4m":{pct:74,verdict:"Успех в деле — немного скучно",text:"Довольно успешные отношения. Много созвучия в отношении материального благополучия. Четвёрка помогает восьмёрке достичь успеха в бизнесе.",strength:"Даёт ей стабильность и уверенность.",attention:"Может заставить восьмёрку скучать и не даёт возможности расслабиться.",advice:"Добавляйте разнообразие самостоятельно. Он не изменится — зато вы можете привнести живость в союз."},
+"8w-5m":{pct:45,verdict:"Трудное начало — выгода возможна",text:"Восьмёрка вряд ли сразу обратит внимание на пятёрку. Единственное, что их может соединить — непомерная страсть или выгодные деловые отношения.",strength:"Оба знают, как заработать деньги, стремятся к карьерному росту. Такая коллаборация может принести огромный успех.",attention:"В личных отношениях взаимопонимания мало — слишком разные ценности.",advice:"Если это деловое партнёрство — отличный вариант. В личное не стоит вкладывать больших надежд."},
+"8w-6m":{pct:88,verdict:"Идеальный союз",text:"Это идеальный союз. Шестёрка знает, как развеселить, расслабить и создать условия для сотрудничества с восьмёркой. Она сможет создать все условия для её реализации.",strength:"Поддержит в распределении обязанностей. Даст мотивацию для радостной жизни.",attention:"Берегите эту гармонию — она редкая.",advice:"Инвестируйте в этот союз. Такой партнёр рядом — подарок судьбы."},
+"8w-7m":{pct:62,verdict:"Один управляет — другой мечтает",text:"Восьмёрка лидирует. Семёрка мечтает. Она присматривает за хозяйством, он добавляет красок в повседневную жизнь. Они могут не заходить на территорию друг друга.",strength:"Каждый занят своим — нет борьбы за контроль.",attention:"Только пропасть непонимания разлучит их. Важно поддерживать диалог.",advice:"Регулярно разговаривайте о том, что важно каждому. Молчание здесь опаснее конфликта."},
+"8w-8m":{pct:52,verdict:"Противостояние двух восьмёрок",text:"Тут однообразие работает напротив. Противостояние может стать непримиримым. Нет шанса для плодотворного сотрудничества. Много противоречий.",strength:"Если люди воспитывались в одинаковых условиях — сотрудничество возможно. Особенно в сфере бизнеса.",attention:"Борьба за власть может стать хронической. Оба не привыкли уступать.",advice:"Договоритесь о сферах влияния чётко. Без этого — вечный конфликт."},
+"8w-9m":{pct:56,verdict:"Нет ответов на главные вопросы",text:"Трудное сочетание. Нет явных разногласий. Но у восьмёрки будет много вопросов к девятке: почему ты не берёшь ответственность?",strength:"Отсутствие открытых конфликтов — они хотя бы не ссорятся.",attention:"Ответа на вопросы восьмёрки может не быть. Это главный источник напряжения.",advice:"Примите природу партнёра или честно признайте несовместимость. Ждать, что он изменится, — напрасно."},
+"9w-1m":{pct:58,verdict:"Поддержка есть — счастья мало",text:"Девятка любит таких партнёров-единиц и считает их своей поддержкой. Но единица может угнетать. Если вас устроит такой расклад — нормальный союз тогда.",strength:"Единица действительно может быть поддержкой и опорой для девятки.",attention:"Если деловые отношения строятся на угнетении одного — это не союз.",advice:"Оцените, счастлив ли партнёр рядом с вами. Союз, где один угнетает, — не союз."},
+"9w-2m":{pct:82,verdict:"Тёплые отношения без борьбы за лидерство",text:"Это тёплые отношения. Оба стараются поддержать друг друга. Огонь и вода — игристое вино. Такие пары часто бывают счастливы. Лидера тут нет, и это может принести счастье в семье.",strength:"Взаимная поддержка, тепло, отсутствие борьбы за доминирование.",attention:"Без лидера иногда сложно принимать решения. Важно научиться договариваться.",advice:"Культивируйте тепло и заботу. Именно они — фундамент этого счастливого союза."},
+"9w-3m":{pct:70,verdict:"Споры возможны — прощение спасает",text:"Могут возникать споры и непонимание. Но на сексуальном уровне устанавливаются хорошие отношения. Если девятка не капризна — тройка поймёт и простит почти всё.",strength:"Сексуальная совместимость хорошая. Возможен долгий союз.",attention:"Капризность девятки разрушит даже самое терпеливое сердце тройки.",advice:"Работайте над мягкостью в общении. Ваша гибкость здесь — ключ к долгим отношениям."},
+"9w-4m":{pct:78,verdict:"Доверие со временем — неразрывный союз",text:"Доверие тут возникает со временем. Девятка своим хорошим отношением подтверждает любовь. Четвёрка берёт на себя ответственность. И тогда этот союз становится неразрывным.",strength:"Со временем — очень крепкий и надёжный союз. Основан на зрелом взаимном доверии.",attention:"Этому союзу нужно время. Не торопите его — дайте вырасти.",advice:"Проявляйте любовь через поступки. Четвёрка верит делам, а не словам."},
+"9w-5m":{pct:44,verdict:"Она любит — он господствует",text:"Девятка может влюбиться и начать потакать пятёрке. Пятёрка же может заставить девятку страдать, заняв место господина. Девятка не может лишиться независимости.",strength:"Начальное взаимное влечение может быть сильным.",attention:"Маловероятный союз на долго. Пятёрка подавляет природу девятки.",advice:"Следите за тем, не теряете ли вы себя в этих отношениях. Ваша независимость — ваша ценность."},
+"9w-6m":{pct:90,verdict:"Шикарный союз для всех видов отношений",text:"Ему хватает решимости. Отношения могут быть длительными. Шикарный союз, где каждый может проявить свою индивидуальность. Оба партнёра имеют равные права на реализацию.",strength:"9 и 6 — гармоничное сочетание для всех видов отношений. Равновесие и взаимное уважение.",attention:"Берегите это равновесие — оно редкое и ценное.",advice:"Инвестируйте в этот союз — он того стоит. Общий духовный и творческий рост укрепит вас."},
+"9w-7m":{pct:80,verdict:"Один помогает другому раскрыться",text:"Девятка может помочь семёрке максимально раскрыть свои способности. Она готова взять на себя ответственность. Семёрка будет очень благодарна ей за предоставляемые возможности.",strength:"Союз очень благоприятный. Девятка — источник роста для обоих.",attention:"Девятке важно не раствориться полностью в развитии партнёра. Её собственная реализация тоже важна.",advice:"Цените благодарность партнёра — она искренняя. Но не забывайте и о своих потребностях."},
+"9w-8m":{pct:54,verdict:"9 расширяет, 8 ограничивает — трение",text:"Тут слабое сочетание. Потому что 9 — это расширение, а 8 — ограничение. Если вы не против выяснять отношения, спорить, доказывать — то это тот самый случай.",strength:"Борьба характеров может закалить обоих — если оба готовы работать над собой.",attention:"Постоянное напряжение истощает. Без готовности к компромиссу — союз не выживет.",advice:"Решите заранее: готовы ли вы к такому уровню напряжённости? Это выбор, а не судьба."},
+"9w-9m":{pct:68,verdict:"Страсть есть — нужно общее направление",text:"В сексе всё идеально. Но в отношениях на продолжительное время ощущается некоторое недоверие. Одному и другому как будто чего-то не хватает.",strength:"Страстный и яркий союз. Взаимный интерес и восхищение.",attention:"Если период ярких чувств закончится — люди могут разбежаться по разным комнатам.",advice:"В этих отношениях очень важно смотреть в одном направлении. Только общие интересы и взгляды сохранят союз на долгие годы."}
+};
+
+const BIZ_DATA={
+"1w-1m":{pct:68,verdict:"Два лидера — нужно разграничение зон",text:"Два ярких лидера с одинаковой энергией и амбициями. Каждый знает себе цену и не склонен подчиняться. В бизнесе это может стать как двигателем, так и источником постоянных конфликтов.",strength:"Высокая инициативность, смелые решения, готовность брать ответственность. Вместе они производят сильное впечатление на партнёров и клиентов.",attention:"Без чёткого разграничения зон ответственности — постоянная борьба за главенство.",advice:"Разделите сферы управления так, чтобы каждый был главным в своём направлении."},
+"1w-2m":{pct:76,verdict:"Стратег и исполнитель — хороший тандем",text:"Единица генерирует идеи и задаёт направление, двойка обеспечивает поддержку, гибкость и чуткость к команде.",strength:"Инициативность единицы усиливается эмоциональным интеллектом двойки. Партнёрство устойчивое.",attention:"Двойка должна получать признание за вклад, иначе теряет мотивацию.",advice:"Публично отмечайте вклад партнёра. Для двойки признание — топливо для продуктивности."},
+"1w-3m":{pct:80,verdict:"Оба нацелены на рост — сильное партнёрство",text:"Хороший деловой союз: оба заряжены на результат, любят социальную реализацию и расширение.",strength:"Энергия, харизма, способность привлекать ресурсы и людей. Вместе они умеют зажигать проекты.",attention:"Оба лидеры — важно определить, кто принимает финальные решения.",advice:"Договоритесь о финальном слове в ключевых вопросах. Это сэкономит время и нервы."},
+"1w-4m":{pct:78,verdict:"Идея + исполнение — классический союз",text:"Единица выдаёт смелые идеи и берёт инициативу, четвёрка просчитывает риски и выстраивает систему.",strength:"Четвёрка удерживает проекты от хаоса, единица не даёт им застыть. Взаимное дополнение.",attention:"Единица может торопить, четвёрка — тормозить. Найдите общий ритм.",advice:"Уважайте темп друг друга. Скорость единицы + точность четвёрки = отличный результат."},
+"1w-5m":{pct:55,verdict:"Сложно выстроить структуру",text:"Оба ориентированы на себя и свои интересы. Пятёрке не хватает системности, которую требует единица.",strength:"Оба энергичны и умеют привлекать внимание. В краткосрочных задачах — эффективны.",attention:"Долгосрочное партнёрство сложно: разные ценности и подходы к ответственности.",advice:"Используйте этот союз для конкретных проектов, а не как основу долгосрочного бизнеса."},
+"1w-6m":{pct:70,verdict:"Хороший союз при чётких ролях",text:"Единица задаёт вектор, шестёрка создаёт комфортную среду и следит за качеством процессов.",strength:"Шестёрка умеет работать с людьми. Единица обеспечивает движение вперёд.",attention:"Единица не должна брать на себя все решения — шестёрка имеет ценный взгляд на процессы.",advice:"Советуйтесь с партнёром по вопросам команды. Его интуиция здесь сильна."},
+"1w-7m":{pct:62,verdict:"Разные скорости — нужна договорённость",text:"Единица хочет действовать быстро, семёрка предпочитает думать и анализировать.",strength:"Семёрка обеспечивает глубину анализа. Единица — скорость реализации.",attention:"Конфликт скоростей и стилей принятия решений может тормозить бизнес.",advice:"Разделите роли: семёрка анализирует и стратегирует, единица реализует."},
+"1w-8m":{pct:82,verdict:"Великолепный деловой альянс",text:"Одно из лучших деловых сочетаний. Единица — инициатива и смелость, восьмёрка — дисциплина, системность и умение масштабировать.",strength:"Восьмёрка придаёт проектам структуру и устойчивость, единица не даёт им стоять на месте.",attention:"Восьмёрка требует строгости и дисциплины — единице придётся принять эти правила.",advice:"Уважайте системность партнёра. Она превращает ваши идеи в реальный устойчивый бизнес."},
+"1w-9m":{pct:74,verdict:"Энергия и мудрость — хороший баланс",text:"Единица обеспечивает напор и инициативу, девятка — широту взгляда и умение работать с людьми.",strength:"Девятка умеет договариваться и вдохновлять команду. Единица ведёт к цели.",attention:"Единице важно слушать девятку — её видение часто оказывается точным.",advice:"Цените стратегическую мудрость партнёра. Действуйте вместе, а не параллельно."},
+"2w-1m":{pct:76,verdict:"Поддержка + лидерство = продуктивный союз",text:"Единица задаёт направление, двойка обеспечивает внутреннюю атмосферу, работу с командой и клиентами.",strength:"Двойка тонко чувствует людей — это ценно в переговорах. Единица берёт ответственность за результат.",attention:"Двойке важно получать признание за невидимую работу. Без этого — потеря мотивации.",advice:"Регулярно отмечайте вклад партнёра. Видимость его работы — залог долгосрочного союза."},
+"2w-2m":{pct:65,verdict:"Много эмпатии — нужен внешний лидер",text:"Оба тонко чувствуют и умеют работать с людьми. Но оба склонны сомневаться и избегать жёстких решений.",strength:"Высокий эмоциональный интеллект. Работа с командой и клиентами — сильная сторона.",attention:"Необходим третий — наставник или совет, кто будет принимать стратегические решения.",advice:"Найдите наставника или советника. Их мнение поможет двигаться, не застревая в согласованиях."},
+"2w-3m":{pct:74,verdict:"Один стратег — другой работает с людьми",text:"Тройка обеспечивает стратегию и масштаб, двойка — внутренние процессы, команду и клиентский сервис.",strength:"Тройка умеет привлекать ресурсы и связи, двойка удерживает людей в проекте.",attention:"Тройка должна уважать мнение двойки по кадровым вопросам — её чутьё на людей редко подводит.",advice:"Доверяйте интуиции партнёра в вопросах команды. Это его сильнейшая сторона."},
+"2w-4m":{pct:72,verdict:"Стабильность и человечность",text:"Четвёрка выстраивает системы и процессы, двойка работает с людьми и клиентами.",strength:"Четвёрка обеспечивает надёжность и предсказуемость, двойка — тепло и лояльность клиентов.",attention:"Четвёрка может быть слишком прямолинейна с командой — двойке придётся сглаживать острые углы.",advice:"Используйте свою мягкость как инструмент. В переговорах и работе с людьми вы незаменимы."},
+"2w-5m":{pct:60,verdict:"Разные приоритеты — нужна договорённость",text:"Пятёрка любит скорость и новизну, двойка ценит стабильность и глубину.",strength:"Пятёрка привносит динамику, двойка — устойчивость. Разные скорости могут дополнять.",attention:"Пятёрка может казаться холодной и незаинтересованной. Двойка — слишком медленной.",advice:"Договоритесь о ритме работы заранее. Без этого накапливается взаимное раздражение."},
+"2w-6m":{pct:80,verdict:"Тёплый и продуктивный союз",text:"Оба ориентированы на людей и качество. Хорошее сочетание для бизнеса в сфере услуг или творчества.",strength:"Шестёрка добавляет везение и умение создавать красивый продукт. Двойка — чуткость.",attention:"Оба могут уклоняться от жёстких деловых решений. Нужен кто-то, кто будет держать бюджет.",advice:"Наймите финансового директора или советника. Ваша сила — в людях, не в цифрах."},
+"2w-7m":{pct:66,verdict:"Анализ + чуткость — хорошее сочетание",text:"Семёрка думает стратегически и глубоко, двойка работает с командой и клиентами.",strength:"Семёрка обеспечивает глубину продукта, двойка — качество коммуникаций.",attention:"Нестабильность семёрки может пугать двойку. Важно договориться о предсказуемости.",advice:"Создайте совместные ритуалы — регулярные встречи, фиксация планов. Это стабилизирует партнёрство."},
+"2w-8m":{pct:82,verdict:"Надёжный деловой тандем",text:"Восьмёрка обеспечивает системность и результат, двойка — работу с людьми и коммуникации.",strength:"Восьмёрка даёт бизнесу структуру, двойка — лицо и душу. Клиенты любят этот союз.",attention:"Восьмёрка может быть жёсткой с командой. Двойке придётся играть роль амортизатора.",advice:"Распределите роли: восьмёрка — результат, двойка — люди. Не пытайтесь заменить друг друга."},
+"2w-9m":{pct:85,verdict:"Взаимная поддержка — высокий потенциал",text:"Оба умеют работать с людьми и видеть картину целиком. Сильный союз для бизнеса, связанного с людьми.",strength:"Девятка обеспечивает широту взгляда и связи, двойка — внутреннюю теплоту и лояльность команды.",attention:"Оба могут избегать конфликтов — иногда это мешает принимать жёсткие, но необходимые решения.",advice:"Договоритесь: кто принимает трудные решения, когда это нужно? Это снимет напряжение."},
+"3w-1m":{pct:78,verdict:"Два лидера с общим вектором",text:"Оба нацелены на масштаб и рост. Тройка добавляет харизму, единица — инициативу и смелость.",strength:"Высокая энергия, умение привлекать партнёров и ресурсы.",attention:"Оба лидеры — без разграничения ролей будут постоянно конкурировать.",advice:"Заранее определите зоны ответственности. Это превратит конкуренцию в синергию."},
+"3w-2m":{pct:62,verdict:"Тройка ведёт — двойка поддерживает",text:"Тройка задаёт стратегию и темп, двойка обеспечивает мягкую силу — работу с командой и клиентами.",strength:"Двойка слышит то, что тройка не замечает. Её чуткость — ценный актив.",attention:"Тройка должна по-настоящему слышать двойку, а не просто терпеть её мнение.",advice:"Создайте регулярный формат для обмена мнениями. Двойка даёт лучшую обратную связь при безопасной атмосфере."},
+"3w-3m":{pct:70,verdict:"Много идей — нужна структура",text:"Оба генерируют идеи, умеют продавать и вдохновлять. Но без системности бизнес может оставаться в вечном режиме запуска.",strength:"Высокая энергия, харизма, умение привлекать людей и проекты.",attention:"Кто-то должен заниматься операционкой. Иначе все идеи зависнут в воздухе.",advice:"Наймите сильного операционного директора. Ваша сила — в развитии, не в рутине."},
+"3w-4m":{pct:76,verdict:"Идея + система — продуктивный союз",text:"Тройка создаёт идеи и отношения, четвёрка выстраивает процессы и следит за исполнением.",strength:"Взаимное дополнение: тройка привлекает, четвёрка удерживает. Бизнес растёт устойчиво.",attention:"Тройка может торопить, четвёрка — притормаживать. Важно уважать темп друг друга.",advice:"Найдите общий ритм стратегических встреч. Синхронизация — ключ к продуктивности."},
+"3w-5m":{pct:62,verdict:"Оба динамичны — но непредсказуемы",text:"Оба любят движение, новизну и общение. Хороший союз для краткосрочных проектов.",strength:"Высокая гибкость, умение адаптироваться, широкий круг контактов.",attention:"Без стабильного фундамента бизнес будет постоянно перезагружаться.",advice:"Наймите операционного менеджера или финансиста. Они создадут почву для ваших идей."},
+"3w-6m":{pct:88,verdict:"Великолепный деловой союз",text:"Отличное деловое партнёрство. Тройка генерирует возможности, шестёрка создаёт красивый продукт и удерживает клиентов.",strength:"Высокая степень взаимопонимания. Бизнес растёт органично.",attention:"Важно не растекаться на слишком много проектов одновременно.",advice:"Выберите приоритетное направление и сфокусируйтесь. Ваш союз заслуживает глубины."},
+"3w-7m":{pct:64,verdict:"В проектном формате — хорошо",text:"В деловых отношениях этот альянс благоприятен. Тройка работает с людьми и возможностями, семёрка — с аналитикой и стратегией.",strength:"Семёрка обеспечивает глубину и точность, тройка — масштаб и скорость.",attention:"В постоянном партнёрстве могут возникать трения из-за разных скоростей.",advice:"Идеальный формат — проектное партнёрство с чёткими сроками и задачами."},
+"3w-8m":{pct:80,verdict:"Два сильных человека — серьёзный бизнес",text:"Тройка привлекает клиентов и партнёров, восьмёрка выстраивает системы и масштабирует.",strength:"Высокая взаимная сила. Стратегия + исполнение + продажи + системность.",attention:"Оба сильные — важно договориться, кто принимает финальные решения.",advice:"Распределите роли по зонам. Финальное слово в своей зоне — за ответственным за неё."},
+"3w-9m":{pct:72,verdict:"Девятка исполняет — тройка ведёт",text:"Тройка определяет вектор, девятка — надёжный исполнитель с широкими компетенциями.",strength:"Девятка исполнительная, бесстрашная, быстрая. Тройка умеет использовать эти качества.",attention:"Важно давать девятке возможность проявить лучшие качества. Иначе она угаснет.",advice:"Делегируйте девятке реальные зоны ответственности. Доверие раскрывает её потенциал."},
+"4w-1m":{pct:80,verdict:"Идеальный союз для достижения целей",text:"4 — стабильность и безопасность, 1 — инициатива, смелость и ответственность. В деловом контексте — это отличный союз.",strength:"Единица не даёт проекту стоять на месте, четвёрка удерживает от хаоса.",attention:"Здесь единица — лидер. Четвёрке важно принять это, иначе конфликт неизбежен.",advice:"Принимайте лидерство единицы в стратегических вопросах. Ваша сила — в реализации."},
+"4w-2m":{pct:68,verdict:"Один лидирует — важна честность",text:"Четвёрка берёт на себя ответственность за направление. Двойка обеспечивает поддержку и работу с людьми.",strength:"Двойка умеет слышать команду и клиентов. Четвёрка — держать курс.",attention:"Четвёрка не терпит вранья и скрытых мотивов. Любая нечестность разрушит партнёрство.",advice:"Договоритесь о полной прозрачности с первого дня. Это основа вашего союза."},
+"4w-3m":{pct:74,verdict:"Система и харизма — сильный союз",text:"Тройка привлекает клиентов и создаёт возможности, четвёрка реализует, систематизирует и удерживает.",strength:"Тройка обеспечивает рост, четвёрка — стабильность. Взаимное дополнение.",attention:"Четвёрке может казаться, что тройка слишком рассеяна. Тройке — что четвёрка слишком медлительна.",advice:"Уважайте разницу в стилях. Именно она и делает ваш союз сильным."},
+"4w-4m":{pct:78,verdict:"Удвоенная стабильность и удача",text:"Оба ценят стабильность, системность и долгосрочное планирование. Отличное сочетание для надёжного бизнеса.",strength:"Оба обладают способностью привлекать удачу. Уважение и доверие гарантированы.",attention:"Могут быть слишком осторожны. Иногда нужно рисковать, чтобы расти.",advice:"Периодически консультируйтесь с более авантюрными партнёрами или наставниками."},
+"4w-5m":{pct:60,verdict:"Разные подходы — нужна общая цель",text:"Четвёрка ищет стабильности и системности, пятёрка — скорости и свободы.",strength:"Если есть общая цель — пятёрка вносит динамику, четвёрка — фундамент.",attention:"Непредсказуемость пятёрки дестабилизирует четвёрку. Это главный риск союза.",advice:"Зафиксируйте общие правила игры письменно. Структура поможет обоим чувствовать себя комфортно."},
+"4w-6m":{pct:85,verdict:"Очень благоприятное деловое сочетание",text:"Чётко определённые обязанности, совпадение ценностей, общее стремление к качеству. Один из лучших деловых союзов.",strength:"Каждый может реализовать свои способности в рамках партнёрства. Доверие и уважение с первых дней.",attention:"Берегите доверие. Любой уход в сторону разрушит этот хрупкий баланс.",advice:"Инвестируйте в совместное развитие: учёба, конференции, новые рынки."},
+"4w-7m":{pct:82,verdict:"Одно из лучших сочетаний",text:"Семёрка обеспечивает стратегическую глубину и нестандартные решения, четвёрка — реализацию и стабильность.",strength:"Семёрка вдохновляет на новые направления, четвёрка воплощает их в жизнь системно.",attention:"Четвёрке придётся взять на себя операционную нагрузку — семёрка не всегда приспособлена к рутине.",advice:"Цените творческий вклад семёрки. Он превращает обычный бизнес в нечто особенное."},
+"4w-8m":{pct:86,verdict:"Мощный деловой тандем",text:"Оба ценят системность, стабильность и рост. Один из наиболее сильных деловых союзов.",strength:"Высокая надёжность, взаимное уважение, совместные достижения. Бизнес строится на прочном фундаменте.",attention:"Слишком глубокий уход в работу без анализа и развития может остановить рост.",advice:"Выделяйте время на стратегические сессии. Бизнес нуждается не только в системе, но и в видении."},
+"4w-9m":{pct:68,verdict:"Один ведёт — девятка исполняет",text:"Четвёрке нужно взять управление на себя, ценя при этом широту взгляда и связи девятки.",strength:"Девятка умеет работать с людьми и видит большую картину. Четвёрка — держать курс.",attention:"Девятка может стремиться к свободе. Жёсткий контроль её разрушит.",advice:"Давайте девятке свободу в её зонах ответственности. Доверие раскрывает её лучшие качества."},
+"5w-1m":{pct:58,verdict:"Скорость без направления",text:"Оба динамичны, но единице трудно выстроить лидерство рядом с пятёркой.",strength:"Высокая скорость реакции, широкий круг контактов, гибкость.",attention:"Единице трудно реализоваться как лидеру. Это источник хронического напряжения.",advice:"Используйте этот союз для конкретных проектов, а не как основу долгосрочного бизнеса."},
+"5w-2m":{pct:64,verdict:"Деловой союз с хорошим потенциалом",text:"В деловых отношениях этот союз имеет большие шансы на успех. Пятёрка ведёт, двойка поддерживает.",strength:"Двойка обеспечивает внутреннюю работу с людьми. Пятёрка — внешние контакты и идеи.",attention:"Бесславный конец возможен, если пятёрка перегибает палку в требованиях.",advice:"Уважайте вклад двойки. Без её поддержки ваши идеи останутся без реализации."},
+"5w-3m":{pct:78,verdict:"Высокая энергия и потенциал сотрудничества",text:"Оба харизматичны, умеют привлекать людей и проекты. Высокая возможность сотрудничества.",strength:"Широкий круг возможностей, высокая скорость, взаимный интерес к делу.",attention:"Тройке нужно сохранять гибкость, иначе её терпению придёт конец.",advice:"Цените терпение тройки. Ваша импульсивность требует компенсации."},
+"5w-4m":{pct:60,verdict:"Стабильность vs свобода",text:"Четвёрка хочет системности, пятёрка — свободы движения.",strength:"Пятёрка привносит динамику, четвёрка — структуру.",attention:"Непредсказуемость пятёрки дестабилизирует четвёрку.",advice:"Зафиксируйте базовые правила совместной работы письменно."},
+"5w-6m":{pct:74,verdict:"Партнёры устраивают друг друга",text:"Шестёрка знает, как постоять за дело, проявить инициативу и обладает интуицией. Пятёрка ценит эти качества.",strength:"Оба активны и умеют работать с людьми.",attention:"Оба своенравны. Важно не перетягивать одеяло в ключевых решениях.",advice:"Договоритесь о зонах ответственности. Взаимная благодарность поддерживает долгосрочный союз."},
+"5w-7m":{pct:52,verdict:"Нестандартный союз без берегов",text:"Оба ценят свободу и независимость. Возможен проектный формат сотрудничества.",strength:"Творческие и нестандартные проекты — их сильная область.",attention:"Надёжность и постоянство — слабые стороны обоих.",advice:"Используйте этот союз для конкретных творческих или исследовательских проектов."},
+"5w-8m":{pct:84,verdict:"Идеальное деловое сочетание",text:"Интуиция и аналитический ум пятёрки совместно с работоспособностью и системной организованностью восьмёрки дают возможность преуспеть в бизнесе.",strength:"Пятёрка чувствует рынок и возможности, восьмёрка превращает их в системный бизнес.",attention:"Восьмёрка держит всё под контролем — пятёрке важно принять эту структуру.",advice:"Дайте восьмёрке управлять процессами. Ваша задача — чувствовать новые возможности."},
+"5w-9m":{pct:64,verdict:"Интерес есть — нужна структура",text:"Оба интересны друг другу, умеют работать с людьми. Но без чёткой структуры бизнес будет буксовать.",strength:"Взаимный интерес, широкие возможности для партнёрств и коллабораций.",attention:"В деловом быту всплывут разногласия.",advice:"Создайте чёткую договорённость о ролях и обязанностях до старта."},
+"6w-1m":{pct:72,verdict:"Хорошо сбалансированный деловой союз",text:"Единица обеспечивает движение вперёд, шестёрка — качество продукта и работу с клиентами.",strength:"Умение мечтать и реализовывать. Совместные проекты дают яркие результаты.",attention:"Шестёрке важно оставаться независимой в принятии решений своей зоны.",advice:"Сохраняйте автономию в своей сфере ответственности."},
+"6w-2m":{pct:64,verdict:"Один лидирует — всё зависит от потенциала другого",text:"В деловых отношениях лидирует шестёрка. Двойка поддерживает и обеспечивает работу с людьми.",strength:"Двойка даёт силы и уверенность, поддерживает атмосферу в команде.",attention:"Если двойка привлекла только внешне — разочарование будет болезненным.",advice:"Изучите компетентность партнёра до начала совместного дела."},
+"6w-3m":{pct:72,verdict:"Сотрудничество даёт удачу",text:"Удача будет им сопутствовать, если они будут сотрудничать. Тройка задаёт стратегию, шестёрка реализует в деталях.",strength:"Взаимное дополнение: тройка привлекает, шестёрка удерживает клиентов и качество.",attention:"Трения разрушат отношения. Нужно учиться уступать в несущественном.",advice:"Договоритесь о сферах ответственности. В своей зоне — полная автономия."},
+"6w-4m":{pct:70,verdict:"Общие цели и высокие стандарты",text:"Красота, творчество и общие цели объединяют эту пару. Высокие стандарты качества у обоих.",strength:"Совместное стремление к качеству и красоте. Клиенты ценят этот союз.",attention:"Оба много читают на подсознательном уровне. Прозрачность в намерениях критически важна.",advice:"Будьте максимально открыты в своих бизнес-намерениях."},
+"6w-5m":{pct:56,verdict:"Оба берут — некому отдавать",text:"Оба своенравны и настроены на получение. Долгосрочное партнёрство сложно.",strength:"Взаимное обучение и расширение горизонтов — краткосрочная ценность союза.",attention:"Кто-то должен быть готов вкладывать больше.",advice:"Честно обсудите ожидания от партнёрства до старта."},
+"6w-6m":{pct:85,verdict:"Прекрасное взаимопонимание в деле",text:"Деловые отношения имеют огромный шанс на успех. Взаимное понимание и дополнение.",strength:"Каждый дополняет личные качества другого. Высокий уровень доверия и кооперации.",attention:"Кому-то придётся уступить в конфликтных ситуациях.",advice:"Создайте чёткий процесс принятия решений."},
+"6w-7m":{pct:44,verdict:"Рискованный союз — один теряет",text:"Семёрки склонны использовать шестёрок для реализации собственных целей.",strength:"Общие планы по духовному развитию или нишевые творческие проекты могут объединить.",attention:"Шестёрка рискует стать ресурсом, а не партнёром.",advice:"Честно оцените: вы партнёр или ресурс? Если второе — меняйте условия или выходите."},
+"6w-8m":{pct:82,verdict:"Огромные шансы на деловой успех",text:"Если шестёрка решит принять такого партнёра — сможет реализовать все свои деловые желания.",strength:"Люди создадут почву для постоянного развития. Всё будет стабильным и прогнозируемым.",attention:"Шестёрке необходимо взять на себя всё, связанное с отдыхом и эмоциями команды.",advice:"Распределите роли: восьмёрка — результат, шестёрка — атмосфера."},
+"6w-9m":{pct:86,verdict:"Гармоничный и частый союз",text:"Очень частое и успешное деловое сочетание. Они сходятся удивительным образом.",strength:"9 и 6 — гармоничное сочетание для всех видов отношений, включая деловые.",attention:"Важно слышать и вдохновлять партнёра постоянно — не только в стартовый период.",advice:"Инвестируйте в совместное развитие и общее видение."},
+"7w-1m":{pct:62,verdict:"Анализ + действие — нужно принятие",text:"Семёрка мыслит глубоко и стратегически, единица действует. Деловой союз возможен при взаимном уважении стилей.",strength:"Семёрка даёт глубину, единица — скорость.",attention:"Непонимание стиля работы друг друга — главный риск.",advice:"Уважайте различные стили работы. Это конкурентное преимущество, а не проблема."},
+"7w-2m":{pct:50,verdict:"Сложно без взаимного принятия",text:"Двойка может дать семёрке шанс, но рискует разочароваться.",strength:"Двойка умеет работать с людьми — это ценно для семёрки.",attention:"Нестабильность семёрки пугает двойку.",advice:"Создайте регулярные форматы общения. Предсказуемость помогает двойке чувствовать стабильность."},
+"7w-3m":{pct:80,verdict:"Понимание, общие интересы — сильный союз",text:"Деловой союз строится на глубоком взаимопонимании и общих ценностях.",strength:"Все желания и амбиции реализуются. Высокий интеллектуальный и творческий уровень союза.",attention:"Важно сохранять взаимопонимание в обычные дни.",advice:"Вкладывайте в регулярное общение и совместное развитие."},
+"7w-4m":{pct:76,verdict:"Совместный бизнес — успех гарантирован",text:"Если это совместный бизнес — успех гарантирован. Семёрка обеспечивает нестандартные решения, четвёрка — реализацию.",strength:"Системность четвёрки + творческая глубина семёрки = сильный бизнес.",attention:"Четвёрка должна принять оригинальность семёрки, а не пытаться её нормализовать.",advice:"Цените уникальность партнёра. Его нестандартность — ваше конкурентное преимущество."},
+"7w-5m":{pct:64,verdict:"Творческий союз — без жёстких структур",text:"Любой союз, основанный на творчестве, успешен. Идеальный формат — проектное партнёрство.",strength:"Совместные нестандартные проекты, духовные или интеллектуальные предприятия.",attention:"Традиционный деловой формат плохо подходит обоим.",advice:"Договоритесь о формате честно. Нестандартный союз эффективнее принудительного стандартного."},
+"7w-6m":{pct:84,verdict:"Шестёрка — идеальный деловой партнёр для семёрки",text:"Шестёрка готова на многое ради дела. Материальные и организационные вопросы берёт на себя. Семёрка может сосредоточиться на своей экспертизе.",strength:"Семёрка может полностью погрузиться в суть, пока шестёрка держит всё остальное.",attention:"Семёрка может привязаться настолько, что потеряет самостоятельность.",advice:"Отвечайте шестёрке теплом и признанием."},
+"7w-7m":{pct:76,verdict:"Две творческие личности на одной волне",text:"Глубокое взаимопонимание, общий творческий и интеллектуальный мир. Хороший союз для нишевого бизнеса.",strength:"Высокий уровень экспертизы и нестандартного мышления.",attention:"Каждому нужно пространство для собственных реализаций.",advice:"Определите личные зоны ответственности. Это предотвратит слияние и сохранит эффективность."},
+"7w-8m":{pct:80,verdict:"Хорош во всех отношениях",text:"Они способны понять и приспособиться друг к другу. Восьмёрка даёт стабильность, семёрка — глубину.",strength:"Система + глубина = редкое сочетание. Бизнес с реальным конкурентным преимуществом.",attention:"Непредсказуемость семёрки может беспокоить восьмёрку.",advice:"Инвестируйте время в взаимопонимание. Это окупится многократно."},
+"7w-9m":{pct:78,verdict:"Девятка раскрывает семёрку",text:"Девятка восхищается семёркой и готова поддержать её. Деловой союз благоприятный.",strength:"Девятка умеет работать с людьми и привлекать ресурсы. Семёрка обеспечивает глубину продукта.",attention:"Как только девятка почувствует корыстный подход — союз рассыплется.",advice:"Будьте честны в своих намерениях. Девятка прекрасно чувствует фальшь."},
+"8w-1m":{pct:80,verdict:"Деловые отношения — долгосрочный потенциал",text:"Деловые отношения могут продлиться долго. Восьмёрка даёт системность, единица — инициативу.",strength:"Сильное начальное притяжение на деловом уровне. Высокий потенциал.",attention:"Важна стабильность. Если единица ориентирована только на творчество — восьмёрка откажется.",advice:"Оцените ценности партнёра до серьёзных инвестиций."},
+"8w-2m":{pct:58,verdict:"Восьмёрка лидирует во всём",text:"В деловом контексте восьмёрка лидирует, двойка поддерживает. Союз рабочий, но двойка всегда будет в тени.",strength:"Двойка обеспечивает лояльность команды и клиентов. Восьмёрка — результат.",attention:"Двойку важно не обидеть. Её мотивация зависит от признания.",advice:"Регулярно отмечайте вклад партнёра публично."},
+"8w-3m":{pct:76,verdict:"Уважение и стратегия — примерный союз",text:"Два сильных и организованных человека. Уважение и стратегия — основа этого союза.",strength:"Системность + харизма. Бизнес строится на прочном фундаменте с сильным публичным лицом.",attention:"Оба сильные. Важно договориться, кто принимает финальные решения в разных зонах.",advice:"Распределите власть по зонам компетенций."},
+"8w-4m":{pct:76,verdict:"Много созвучия — мощный бизнес",text:"Много созвучия в отношении материального благополучия и системного роста.",strength:"Оба ценят надёжность, системность и результат. Высокая взаимная поддержка.",attention:"Риск застрять в стабильности и упустить возможности для роста.",advice:"Периодически переосмысляйте стратегию. Стабильность — хорошо, но рост требует изменений."},
+"8w-5m":{pct:72,verdict:"Деловая коллаборация с огромным потенциалом",text:"Оба знают, как зарабатывать деньги и стремятся к карьерному росту. Такая коллаборация может принести огромный успех.",strength:"Интуиция пятёрки + системность восьмёрки = мощная бизнес-машина.",attention:"Важно чётко разграничить зоны и не пытаться контролировать друг друга.",advice:"Дайте партнёру полную автономию в его зоне."},
+"8w-6m":{pct:86,verdict:"Идеальный деловой союз",text:"Восьмёрка создаёт условия для реализации, поддерживает в распределении обязанностей, даёт мотивацию.",strength:"Восьмёрка обеспечивает системность и рост. Шестёрка — атмосферу и творческий продукт.",attention:"Берегите эту гармонию — она редкая и ценная.",advice:"Инвестируйте в совместное развитие."},
+"8w-7m":{pct:64,verdict:"Один управляет — другой мечтает",text:"Восьмёрка лидирует. Семёрка добавляет красок и нестандартных решений.",strength:"Системность + творческая глубина. Хорошее сочетание для нишевых рынков.",attention:"Только пропасть непонимания разлучит их. Диалог обязателен.",advice:"Регулярно синхронизируйтесь по ключевым вопросам."},
+"8w-8m":{pct:55,verdict:"Противостояние — нужны правила игры",text:"Противостояние может стать непримиримым. Если только оба не работают по одним и тем же правилам — тогда сотрудничество возможно.",strength:"Особенно перспективно в деловой сфере, если правила чётко определены.",attention:"Борьба за власть может быть хронической.",advice:"Пропишите правила игры максимально детально."},
+"8w-9m":{pct:58,verdict:"Трудный союз — нет ответов на главные вопросы",text:"Трудное деловое сочетание. Восьмёрка ждёт ответственности, девятка — свободы.",strength:"Если девятка берёт ответственность в своей зоне — союз рабочий.",attention:"Ответа на вопросы восьмёрки может не быть.",advice:"Чётко зафиксируйте обязательства каждого письменно."},
+"9w-1m":{pct:62,verdict:"Девятка поддерживает — важен баланс",text:"Единица доминирует, девятка поддерживает. Деловой союз возможен, но девятка рискует потерять свою реализацию.",strength:"Единица обеспечивает движение вперёд. Девятка — широту взгляда.",attention:"Если деловые отношения строятся на угнетении одного — это не партнёрство.",advice:"Договоритесь о равных правах на реализацию."},
+"9w-2m":{pct:80,verdict:"Тёплое и продуктивное партнёрство",text:"Оба стараются поддержать друг друга. Лидера формально нет — и это позволяет принимать решения совместно.",strength:"Взаимная поддержка, тепло в команде, высокая лояльность партнёров и клиентов.",attention:"Без явного лидера могут буксовать важные решения.",advice:"Создайте протокол принятия решений."},
+"9w-3m":{pct:70,verdict:"Споры возможны — прощение сохраняет союз",text:"Могут возникать споры и непонимание. Но если девятка не капризна, тройка поймёт и простит почти всё.",strength:"Тройка умеет прощать. Девятка — широко смотреть.",attention:"Капризность девятки разрушит даже терпеливую тройку.",advice:"Говорите прямо о своих потребностях. Тройка лучше реагирует на конкретику, чем на намёки."},
+"9w-4m":{pct:78,verdict:"Доверие со временем — неразрывный союз",text:"Доверие возникает со временем. Четвёрка берёт ответственность, девятка подтверждает надёжность.",strength:"Зрелый, надёжный и устойчивый деловой союз.",attention:"Этому союзу нужно время. Не торопите события.",advice:"Проявляйте надёжность через конкретные поступки."},
+"9w-5m":{pct:46,verdict:"Маловероятный союз",text:"Пятёрка может заставить девятку страдать. Девятка не может лишиться независимости.",strength:"Начальное взаимное влечение и интерес к совместным идеям.",attention:"Девятка рискует потерять себя в этих деловых отношениях.",advice:"Следите за тем, не теряете ли вы свою позицию."},
+"9w-6m":{pct:88,verdict:"Гармоничный союз для всех видов деятельности",text:"Шикарный деловой союз. Оба имеют равные права на реализацию. 9 и 6 — гармоничное сочетание для всех видов отношений.",strength:"Равновесие и взаимное уважение. Бизнес с высоким уровнем синергии.",attention:"Берегите это редкое равновесие.",advice:"Инвестируйте в совместный рост."},
+"9w-7m":{pct:80,verdict:"Один раскрывает потенциал другого",text:"Девятка помогает семёрке максимально раскрыть способности. Берёт на себя ответственность за общий успех.",strength:"Союз очень благоприятный. Девятка — стратег и лидер, семёрка — эксперт.",attention:"Девятке важно не раствориться полностью в развитии партнёра.",advice:"Находите время для собственных проектов."},
+"9w-8m":{pct:56,verdict:"Расширение vs ограничение — трение",text:"9 — расширение, 8 — ограничение. Постоянное напряжение, споры, доказательства.",strength:"Борьба характеров закаляет — если оба готовы к работе над собой.",attention:"Постоянное напряжение истощает ресурсы.",advice:"Решите заранее: готовы ли вы к такому уровню рабочего напряжения?"},
+"9w-9m":{pct:66,verdict:"Страсть к делу есть — нужно общее направление",text:"Взаимный интерес и восхищение. Но ощущается некоторое недоверие. Только общие ценности держат союз.",strength:"Яркое партнёрство с высоким уровнем взаимного уважения.",attention:"Если вектор расходится — союз рассыпается.",advice:"В этом союзе очень важно смотреть в одном направлении. Регулярно сверяйте компасы."}
+};
+
+function getKey(r1, r2, mode, pair){
+  const db = mode==='life' ? LIFE_DATA : BIZ_DATA;
+  if(pair==='mf'){
+    const k1=r1+'w-'+r2+'m'; if(db[k1]) return k1;
+    const k2=r2+'w-'+r1+'m'; if(db[k2]) return k2;
+  } else {
+    const k1=r1+'w-'+r2+'m'; if(db[k1]) return k1;
+    const k2=r2+'w-'+r1+'m'; if(db[k2]) return k2;
+  }
+  return null;
+}
+
+function calculate(){
+  const d1=days[0], d2=days[1];
+  if(!d1||!d2){ document.getElementById('errMsg').style.display='block'; setTimeout(()=>document.getElementById('errMsg').style.display='none',3000); return; }
+
+  const r1=reduceDay(d1), r2=reduceDay(d2);
+  const db = currentMode==='life' ? LIFE_DATA : BIZ_DATA;
+  const key=getKey(r1,r2,currentMode,currentPair);
+  const data=key?db[key]:null;
+
+  const pct=data?data.pct:65;
+  const verdict=data?data.verdict:(currentMode==='life'?'Союз с потенциалом':'Деловое партнёрство с потенциалом');
+  const text=data?data.text:'Расшифровка для этой комбинации готовится. Обратитесь к эксперту за персональным анализом.';
+  const strength=data?data.strength:'Ваш союз имеет уникальные черты. Эксперт поможет раскрыть их полностью.';
+  const attention=data?data.attention:'Любой союз требует осознанности. Консультация даст точные рекомендации.';
+  const advice=data?data.advice:'Запишитесь на консультацию для получения персональной расшифровки.';
+
+  const labels=PAIR_LABELS[currentPair];
+  document.getElementById('rDay1').textContent=d1===r1?'':'день '+d1+' →';
+  document.getElementById('rNum1').textContent=r1;
+  document.getElementById('rReduced1').textContent=d1===r1?'':'число '+r1;
+  document.getElementById('rDay2').textContent=d2===r2?'':'день '+d2+' →';
+  document.getElementById('rNum2').textContent=r2;
+  document.getElementById('rReduced2').textContent=d2===r2?'':'число '+r2;
+  document.getElementById('rLabel1').textContent=labels[0];
+  document.getElementById('rLabel2').textContent=labels[1];
+  document.getElementById('compatPct').textContent=pct+'%';
+  document.getElementById('compatVerdict').textContent=verdict;
+  document.getElementById('rmTitle').textContent='✦ '+(currentMode==='life'?'Характеристика союза':'Характеристика делового партнёрства');
+  document.getElementById('rmText').textContent=text;
+  document.getElementById('rb1t').textContent=currentMode==='life'?'Сильные стороны':'Синергия';
+  document.getElementById('rb1').textContent=strength;
+  document.getElementById('rb2t').textContent=currentMode==='life'?'Зоны внимания':'Риски и сложности';
+  document.getElementById('rb2').textContent=attention;
+  document.getElementById('rb3t').textContent=currentMode==='life'?'Совет нумеролога':'Рекомендация эксперта';
+  document.getElementById('rb3').textContent=advice;
+
+  const rs=document.getElementById('resultSection');
+  rs.classList.add('visible');
+  setTimeout(()=>{ document.getElementById('compatBar').style.width=pct+'%'; },100);
+  rs.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function resetCalc(){
+  document.getElementById('resultSection').classList.remove('visible');
+  document.getElementById('compatBar').style.width='0%';
+  days[0]=1; days[1]=1;
+  document.getElementById('dayInput1').value='';
+  document.getElementById('dayInput2').value='';
+  renderDay(1); renderDay(2);
+}
+</script>
+</body>
+</html>
